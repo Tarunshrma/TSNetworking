@@ -65,8 +65,10 @@ internal class TSCoreNetwork: NSObject {
             
             do {
                 //Handle generic error recieved from status header
-                let objResponse:HTTPURLResponse = response as! HTTPURLResponse;
-                try self.checkForErrorInResponse(objResponse);
+                if let objResponse:HTTPURLResponse = response as? HTTPURLResponse
+                {
+                    try self.checkForErrorInResponse(objResponse);
+                }
                 self.delegate?.didReceiveReposne(data as AnyObject?, forTaskIdentifer: self.taskIdentifer!)
             }catch let error as NSError {
                 //Handle Error
