@@ -11,6 +11,7 @@ import Foundation
 internal let DEFAULT_MIME_TYPE = "application/octet-stream"
 
 internal let mimeTypes = [
+    "csv": "text/csv",
     "html": "text/html",
     "htm": "text/html",
     "shtml": "text/html",

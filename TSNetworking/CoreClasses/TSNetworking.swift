@@ -2,7 +2,7 @@
 //  TSNetworking.swift
 //  TSNetworking
 //
-//  Created by SANCHIT SHARMA on 17/12/16.
+//  Created by TARUN SHARMA on 17/12/16.
 //  Copyright © 2016 Tarun Sharma. All rights reserved.
 //
 
@@ -97,8 +97,24 @@ extension TSNetworking{
         var networkOperation: TSNetworkOperation?
         
         do{
+            request.responseType = ResponseType.xml
             networkOperation =  try requestData(withRequest: request, completionHandler: completionHandler)
             networkOperation?.responseType = ResponseType.xml
+        }catch{
+            
+        }
+        
+        return networkOperation;
+    }
+    
+    public func downloadData(withRequest request:TSRequest,completionHandler: @escaping ServiceResponse) throws ->  TSNetworkOperation?
+    {
+        var networkOperation: TSNetworkOperation?
+        
+        do{
+            request.responseType = ResponseType.downloadedFileLocation
+            networkOperation =  try requestData(withRequest: request, completionHandler: completionHandler)
+            networkOperation?.responseType = ResponseType.downloadedFileLocation
         }catch{
             
         }
@@ -111,6 +127,7 @@ extension TSNetworking{
         var networkOperation: TSNetworkOperation?
         
         do{
+            request.responseType = ResponseType.json
             networkOperation =  try requestData(withRequest: request, completionHandler: completionHandler)
             networkOperation?.responseType = ResponseType.json
         }catch{
@@ -132,6 +149,7 @@ extension TSNetworking{
         var networkOperation: TSNetworkOperation?
         
         do{
+            request.responseType = ResponseType.cachableContentData
             networkOperation =  try requestData(withRequest: request, completionHandler: completionHandler)
             networkOperation?.responseType = ResponseType.cachableContentData
         }catch{
@@ -184,8 +202,15 @@ open class TSNetworking:NSObject,NetworkOperations {
         var networkOperation: TSNetworkOperation?
         
         do{
-
-            let task:URLSessionTask = coreNetworkObject.dataAPIWithRequest(request)
+            let task:URLSessionTask
+            
+            switch request.responseType {
+            case .downloadedFileLocation?:
+                task = try coreNetworkObject.downloadDataWithRequest(request)
+                break
+            default:
+                task = try coreNetworkObject.dataAPIWithRequest(request)
+            }
 
             //Enqueue request
             networkOperation = TSNetworkOperation(withTask: task, request: request.absoluteUrl()!, completionHandler: completionHandler)
@@ -201,8 +226,6 @@ open class TSNetworking:NSObject,NetworkOperations {
         
     }
 
-
-    
     // MARK: - API Delegate Methods -
     
     /*!

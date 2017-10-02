@@ -2,7 +2,7 @@
 //  TSCoreNetwork.swift
 //  TSNetworking
 //
-//  Created by SANCHIT SHARMA on 4/18/16.
+//  Created by TARUN SHARMA on 4/18/16.
 //  Copyright © 2016 Tarun Sharma. All rights reserved.
 //
 
@@ -53,6 +53,7 @@ internal class TSCoreNetwork: NSObject {
         
         var task:URLSessionTask?
         
+        
         task =  session.dataTask(with: _req.request!, completionHandler: { ( data: Data?, response: URLResponse?, err: Error?) -> Void in
             
             self.taskIdentifer = task!.taskIdentifier
@@ -77,6 +78,47 @@ internal class TSCoreNetwork: NSObject {
         })
         task!.resume();
         return task!;
+    }
+    
+    /*!
+     * @discussion API call to download the data from server
+     * @param Request object of type NSMutableURLRequest
+     * @return Instance of task
+     */
+    internal func downloadDataWithRequest(_ _req:TSRequest)-> URLSessionTask{
+        
+        let session = URLSession.shared
+        let sessionConfig = session.configuration;
+        sessionConfig.urlCache = URLCache.shared
+        
+        var task:URLSessionDownloadTask?
+        
+        task =  session.downloadTask(with: _req.request!) { (location: URL?, response: URLResponse?, err: Error?) in
+            
+            self.taskIdentifer = task!.taskIdentifier
+            
+            //if error found then return to delegate
+            if (err != nil){
+                self.delegate!.didReceiveError(err!,forTaskIdentifer: self.taskIdentifer!)
+                return;
+            }
+            
+            do {
+                //Handle generic error recieved from status header
+                if let objResponse:HTTPURLResponse = response as? HTTPURLResponse
+                {
+                    try self.checkForErrorInResponse(objResponse);
+                }
+                self.delegate?.didReceiveReposne(location as AnyObject?, forTaskIdentifer: self.taskIdentifer!)
+            }catch let error as NSError {
+                //Handle Error
+                self.delegate!.didReceiveError(error,forTaskIdentifer: self.taskIdentifer!)
+            }
+        }
+        
+        task!.resume()
+        
+        return task!
     }
     
     /*!

@@ -2,7 +2,7 @@
 //  TSImageView.swift
 //  TSNetworking
 //
-//  Created by SANCHIT SHARMA on 17/12/16.
+//  Created by TARUN SHARMA on 17/12/16.
 //  Copyright © 2016 Tarun Sharma. All rights reserved.
 //
 
@@ -72,7 +72,7 @@ open class TSImageView: UIImageView {
         do{
             let request = try TSNetworking.sharedInstance.createRequest(fromUrl: url, method: NetworkRequestMethod.GET, data: nil)
             
-            try TSNetworking.sharedInstance.fetchContentData(withRequest: request!) { (data, error) -> Void in
+            _ = try TSNetworking.sharedInstance.fetchContentData(withRequest: request!) { (data, error) -> Void in
                 if let rawData = data as? Data {
                     if let img:UIImage = UIImage(data: rawData){
                         // do whatever with jsonResult

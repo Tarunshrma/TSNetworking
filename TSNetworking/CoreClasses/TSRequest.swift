@@ -2,7 +2,7 @@
 //  TSRequest.swift
 //  TSNetworking
 //
-//  Created by SANCHIT SHARMA on 17/12/16.
+//  Created by TARUN SHARMA on 17/12/16.
 //  Copyright © 2016 Tarun Sharma. All rights reserved.
 //
 
@@ -11,7 +11,11 @@ import Foundation
 open class TSRequest: NSObject {
     // MARK: - Private Member Variables -
     fileprivate var baseUrl: URL
-    var httpParameterEncoding:HTTPClientParameterEncoding
+    
+    public var httpParameterEncoding:HTTPClientParameterEncoding
+    
+    var responseType:ResponseType?
+    
     var request:URLRequest?
     
     // MARK: - Class methods -
@@ -39,23 +43,21 @@ open class TSRequest: NSObject {
         
         //Append the path to base url
         //var url = URL(string: _relativeUrl, relativeTo: self.baseUrl)
-        let url = URL(string: self.baseUrl.absoluteString)
+        var url = URL(string: self.baseUrl.absoluteString)
         url?.appendingPathComponent(_relativeUrl)
         
         let request:NSMutableURLRequest = NSMutableURLRequest();
         request.httpMethod = _method.rawValue;
         
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        
-        let boundary:String = self.generateBoundaryString()
-        
-        //        //Set the content type based on http parameter encoding
+        //Set the content type based on http parameter encoding
         switch self.httpParameterEncoding{
         case .formURLParameterEncoding:
             request.setValue("application/x-www-form-urlencoded; charset=utf-8", forHTTPHeaderField: "Content-Type")
         case .jsonParameterEncoding:
+            request.setValue("application/json", forHTTPHeaderField: "Accept")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         case .multipartFormDataEncoding:
+            let boundary:String = self.generateBoundaryString()
             let contentType:String = "multipart/form-data; boundary=\(boundary)"
             request.setValue(contentType, forHTTPHeaderField: "Content-Type")
         }
@@ -65,11 +67,13 @@ open class TSRequest: NSObject {
             case .GET:
                 //Get method, attach parameter list as query string
                 let parameterString = param.stringFromHttpParameters()
-                var stringUrl = "\(url!.absoluteString)?\(parameterString)"
+                let stringUrl:NSString = "\(url!.absoluteString)?\(parameterString)" as NSString
                 
-                let URL = Foundation.URL(string: stringUrl.addingPercentEscapes(using: String.Encoding.utf8)!)!
-                
-                //                url = NSURL(string:"\(url!.absoluteString)?\(parameterString)")!
+                let urlStr : NSString = stringUrl.addingPercentEscapes(using: String.Encoding.utf8.rawValue)! as NSString
+
+                url = URL(string: urlStr as String)!
+
+//                let URL = Foundation.URL(string:stringUrl.addingPercentEncoding(using: String.Encoding.utf8.rawValue)!)! //addingPercentEscapes(using: String.Encoding.utf8)!)!
                 break
             case .POST:
                 //Post method, attach parameter list in http body
